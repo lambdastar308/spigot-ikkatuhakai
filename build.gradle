@@ -57,12 +57,3 @@ compileTestKotlin {
         jvmTarget = "1.8"
     }
 }
-
-
-jar {
-    from {
-        configurations.compile.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-}
