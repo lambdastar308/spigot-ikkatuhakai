@@ -10,4 +10,8 @@ commands:
     description: Change status of Ikkatuhakai
     permission: ikkatuhakai.command.main
     permission-message: Permission denied
-    usage: /ikkatu [mine,dig,cut,config-reload,reload] [on,off,toggle,get]
+    usage: /ikkatu [mine,dig,cut,all,reload] [on,off,toggle,get]
+
+permissions:
+  ikkatuhakai.command.main.reload:
+    default: op
