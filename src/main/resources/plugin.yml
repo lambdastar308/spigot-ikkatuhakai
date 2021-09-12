@@ -1,5 +1,13 @@
 name: Ikkatuhakai
 version: '${version}'
-main: lambdastar314.ikkatuhakai.IkkatuhakaiKt
+main: lambdastar314.ikkatuhakai.Ikkatuhakai
 prefix: IKKATU_HAKAI
 authors: [ lambdastar314 ]
+
+commands:
+  ikkatu:
+    aliases: [ all ]
+    description: Change status of Ikkatuhakai
+    permission: ikkatuhakai.command.main
+    permission-message: Permission denied
+    usage: /ikkatu [mine,dig,cut,config-reload,reload] [on,off,toggle,get]
