@@ -23,7 +23,6 @@ class Ikkatuhakai : JavaPlugin() {
         ikkatuhalais["dig"] = Ikkatu(this, "dig")
         ikkatuhalais["cut"] = Ikkatu(this, "cut")
 //        Keyed
-//        Arrays.stream(Material.values()).map{}
     }
 
     override fun onDisable() {
