@@ -6,11 +6,11 @@ authors: [ lambdastar314 ]
 
 commands:
   ikkatu:
-    aliases: [ all ]
+    aliases: [ all, ikkatsu ]
     description: Change status of Ikkatuhakai
     permission: ikkatuhakai.command.main
     permission-message: Permission denied
-    usage: /ikkatu [mine,dig,cut,all,reload] [on,off,toggle,get]
+    usage: /ikkatu [mine,dig,cut,all,reload] [on,off,toggle,(get)]
 
 permissions:
   ikkatuhakai.command.main.reload:
