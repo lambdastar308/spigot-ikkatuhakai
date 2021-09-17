@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.5.30'
 }
+apply plugin: 'java-library'
 
 group = 'lambdastar314'
 version = '1.0-SNAPSHOT'
@@ -20,7 +21,7 @@ repositories {
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 def targetJavaVersion = 8
@@ -55,5 +56,12 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+}
+jar {
+    duplicatesStrategy= DuplicatesStrategy.EXCLUDE
+    from configurations.compileClasspath.collect {
+//        println("########"+it.name)
+        it.isDirectory() ? it : zipTree(it)
     }
 }
