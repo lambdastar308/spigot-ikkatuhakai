@@ -1,0 +1,11 @@
+leaves:
+blocks:
+  - CLAY
+  - GRAVEL
+tools:
+  - IRON_SPADE
+  - STONE_SPADE
+  - WOOD_SPADE
+  - DIAMOND_SPADE
+  - GOLD_SPADE
+limit: 10
