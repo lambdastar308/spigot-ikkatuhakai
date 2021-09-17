@@ -1,0 +1,13 @@
+leaves:
+  - LEAVES
+  - LEAVES_2
+blocks:
+  - LOG
+  - LOG_2
+tools:
+  - IRON_AXE
+  - STONE_AXE
+  - WOOD_AXE
+  - DIAMOND_AXE
+  - GOLD_AXE
+limit: 10
