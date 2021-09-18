@@ -1,10 +1,14 @@
 package lambdastar314.ikkatuhakai.ikkatu
 
 import org.bukkit.ChatColor
+import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.World
 import org.bukkit.block.Block
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.enchantments.Enchantment
+import org.bukkit.entity.Entity
+import org.bukkit.entity.ExperienceOrb
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -14,6 +18,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.util.Vector
 import java.io.File
+import java.lang.Integer.min
 import java.lang.reflect.Method
 import java.util.*
 
@@ -75,12 +80,16 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
         if (tools.contains(e.player.inventory.itemInOffHand.type.name))
             recursiveBlocks(e.block, e.player.inventory.itemInOffHand, limit, true)
 
+        dropExp(experience, e.block.world, e.block.location)
+        experience = 0
     }
 
     @EventHandler
     fun onPlayerJoined(e: PlayerJoinEvent) {
         status[e.player.name] = true
     }
+
+    var experience = 0
 
     /**
      * 再帰的にブロックを破壊していく
@@ -118,30 +127,60 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
     fun breakBlock(b: Block, holding: ItemStack?){
 
         try {
-
-            //バージョンによってはないこともある
+            //ライブラリ追加するよりこっちのほうが楽
             val version = "v1_12_R1"
-            val loader = ClassLoader.getSystemClassLoader()
+            //クラスを読み込む
+//            val loader = ClassLoader.getSystemClassLoader()
+            val loader = b.javaClass.classLoader
             val CCraftBlock = loader.loadClass("org.bukkit.craftbukkit.$version.block.CraftBlock")
             val CCraftWorld = loader.loadClass("org.bukkit.craftbukkit.$version.CraftWorld")
+            val CWorld = loader.loadClass("net.minecraft.server.$version.World")
             val CBlock = loader.loadClass("net.minecraft.server.$version.Block")
-            val MgetNMSBlock: Method = CCraftBlock.getDeclaredMethod("getNMSBlock")
-            val MgetHandle: Method = CCraftWorld.getDeclaredMethod("getHandle")
 //            Arrays.stream(CCraftBlock.methods).map{it.name}.filter{it[0]=='g'}.forEach(plugin.logger::info)
-            val MgetExpDrop: Method = CCraftBlock.getDeclaredMethod("getExpDrop")
-            val MgetBlockData: Method = CCraftBlock.getDeclaredMethod("getBlockData")
+            //メゾットを読み込む
+            val MgetNMSBlock: Method = CCraftBlock.getDeclaredMethod("getNMSBlock")
+            val MgetHandle: Method = CCraftWorld.getMethod("getHandle")
+            val MgetBlockData: Method = CBlock.getMethod("getBlockData")
+            val MgetExpDrop: Method = CBlock.getMethod("getExpDrop", CWorld, MgetBlockData.returnType, Int::class.java)
+            //getNMSBlock()が隠れてるので露わにする
             MgetNMSBlock.isAccessible = true
-            val nmsBlock = MgetNMSBlock.invoke(b)
+            //デバッグ 本当に一緒？？？？
+//            plugin.logger.info("b: ${b.javaClass.name} + hash=${b.javaClass.hashCode()}") // ブロックの型
+//            plugin.logger.info("getNMSBlock(): ${MgetNMSBlock.declaringClass.name} + hash=${MgetNMSBlock.declaringClass.hashCode()}") // getNMSBlockの元クラスの型
+//            plugin.logger.info("b instanceOf ${MgetNMSBlock.declaringClass.name} = ${MgetNMSBlock.declaringClass.isInstance(b)}") // 型が一緒か
+//            plugin.logger.info("b class == getNMSBlock Return = ${b.javaClass == MgetNMSBlock.declaringClass}") // 本当に一緒か？？？？
+
+            val nmsBlock = MgetNMSBlock.invoke(b) //ここでエラーが出る
             val handler = MgetHandle.invoke(CCraftWorld.cast(b.world))
             val blockData = MgetBlockData.invoke(nmsBlock)
 
             val bonusLevel = holding?.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) ?: 0
 
-            MgetExpDrop.invoke(nmsBlock, handler, blockData, bonusLevel)
+            val exp = MgetExpDrop.invoke(nmsBlock, handler, blockData, bonusLevel) as Int
+            experience += exp
+            plugin.logger.info("exp:$exp")
+//            dropExp(exp, b.world, b.location)
         }catch(e:Exception) {
             plugin.logger.info("failed to calculate experience. ${e.javaClass.name}:${e.message}")
+            e.printStackTrace()
         }
 
         b.breakNaturally(holding)
+    }
+
+    fun dropExp(value: Int, world: World, pos: Location){
+        var e = value
+        val r = Random()
+        while(0 < e){
+            val drop = min(r.nextInt(1)+1,e)
+            e -= drop
+            val exp = world.spawn(pos, ExperienceOrb::class.java)
+            exp.experience = drop
+            entityVelocity(exp, r)
+        }
+    }
+
+    fun entityVelocity(entity: Entity, r: Random){
+        entity.velocity = Vector(r.nextFloat(), r.nextFloat(),r.nextFloat()).normalize().multiply(0.2)
     }
 }
