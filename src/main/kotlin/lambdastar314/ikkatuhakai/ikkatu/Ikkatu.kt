@@ -30,6 +30,7 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
     var tools = Collections.synchronizedSet(HashSet<String>())
     var statusdef = true
     var limit: Int = 10
+    var version = "v1_12_R1"
 
     companion object {
         val neighbors = arrayOf(
@@ -57,6 +58,7 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
         config.getStringList("tools").stream().forEach(tools::add)
         limit = config.getInt("limit", 5)
         statusdef = config.getBoolean("defaultstatus", false)
+        version = config.getString("version","v1_12_R1")
     }
 
     fun command(player: Player, s: String){
@@ -76,7 +78,11 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
 
     @EventHandler
     fun onBlockBroken(e: BlockBreakEvent) {
-        if(status[e.player.name]!!.not()) return
+        if(e.player == null) return
+        if(e.block == null) return
+        if(e.player.name == null) return
+        
+        if(status[e.player.name]?.not() ?: true) return
         if (tools.contains(e.player.inventory.itemInMainHand.type.name))
             recursiveBlocks(e.block, e.player.inventory.itemInMainHand, limit, true)
         if (tools.contains(e.player.inventory.itemInOffHand.type.name))
@@ -125,7 +131,7 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
 
         try {
             //ライブラリ追加するよりこっちのほうが楽
-            val version = "v1_12_R1"
+             val version = "v1_12_R1"
             //クラスを読み込む
 //            val loader = ClassLoader.getSystemClassLoader()
             val loader = b.javaClass.classLoader
