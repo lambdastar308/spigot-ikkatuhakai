@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.Entity
 import org.bukkit.entity.ExperienceOrb
+import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -58,35 +59,34 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
         config.getStringList("tools").stream().forEach(tools::add)
         limit = config.getInt("limit", 5)
         statusdef = config.getBoolean("defaultstatus", false)
-        version = config.getString("version","v1_12_R1")
+        version = config.getString("version", "v1_12_R1")
     }
 
-    fun command(player: Player, s: String){
-        when(s){
-            "on","enable" ->{
+    fun command(player: Player, s: String) {
+        when (s) {
+            "on", "enable" -> {
                 status[player.name] = true
             }
-            "off","disable" ->{
+            "off", "disable" -> {
                 status[player.name] = false
             }
-            "toggle" ->{
+            "toggle" -> {
                 status[player.name] = status[player.name]!!.not()
             }
         }
-        player.sendMessage("${ChatColor.BLUE}$name ${if(status[player.name]!!) "${ChatColor.AQUA}ON" else "${ChatColor.GREEN}OFF"}")
+        player.sendMessage("${ChatColor.BLUE}$name ${if (status[player.name]!!) "${ChatColor.AQUA}ON" else "${ChatColor.GREEN}OFF"}")
     }
 
     @EventHandler
     fun onBlockBroken(e: BlockBreakEvent) {
-        if(e.player == null) return
-        if(e.block == null) return
-        if(e.player.name == null) return
-        
-        if(status[e.player.name]?.not() ?: true) return
+        if (e.player == null) return
+        if (e.block == null) return
+        if (e.player.name == null) return
+        if (status[e.player.name] != true) return
         if (tools.contains(e.player.inventory.itemInMainHand.type.name))
-            recursiveBlocks(e.block, e.player.inventory.itemInMainHand, limit, true)
+            recursiveBlocks(e.block, e.player.inventory.itemInMainHand)
         if (tools.contains(e.player.inventory.itemInOffHand.type.name))
-            recursiveBlocks(e.block, e.player.inventory.itemInOffHand, limit, true)
+            recursiveBlocks(e.block, e.player.inventory.itemInOffHand)
     }
 
     @EventHandler
@@ -94,44 +94,59 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
         status[e.player.name] = statusdef
     }
 
-    /**
-     * 再帰的にブロックを破壊していく
-     */
-    fun recursiveBlocks(b: Block, holding: ItemStack, limit: Int, ispBlock: Boolean){
-        //対象がメインのブロックだった場合
-        if (blocks.contains(b.type.name)) {
-            breakBlock(b, holding)
-            b.type = Material.AIR
-            if (limit != 0)
-                for (neighbor in neighbors) {
-                        recursiveBlocks(
-                            b.world.getBlockAt(b.location.add(neighbor)),
-                            holding,
-                            limit - 1,
-                            true
-                        )
-                }
-        }
-        //対象が葉など、サブブロックだった場合
-        if (leaves.contains(b.type.name)) {
-            breakBlock(b, null)
-            if (limit != 0)
-                for (neighbor in neighbors) {
-                        recursiveBlocks(
-                            b.world.getBlockAt(b.location.add(neighbor)),
-                            holding,
-                            if (ispBlock) this.limit else limit - 1,
-                            false
-                        )
-                }
+    fun recursiveBlocks(b: Block, holding: ItemStack) {
+        if (blocks.contains(b.type.name).not()) return
+        for (neighbor in neighbors) {
+            val target = b.world.getBlockAt(b.location.add(neighbor))
+            if (target.type == b.type)
+                recursiveBBlocks(
+                    target,
+                    holding,
+                    limit - 1,
+                    b.type
+                )
+            else if (leaves.contains(target.type.name))
+                recursiveLeaves(target, this.limit)
+
         }
     }
 
-    fun breakBlock(b: Block, holding: ItemStack?){
+    fun recursiveBBlocks(b: Block, holding: ItemStack, limit: Int, parentType: Material) {
+        if (b.type != parentType) return
+        breakBlock(b, holding)
+        if (limit != 0)
+            for (neighbor in neighbors) {
+                val target = b.world.getBlockAt(b.location.add(neighbor))
+                if (target.type == parentType)
+                    recursiveBBlocks(
+                        target,
+                        holding,
+                        limit - 1,
+                        parentType
+                    )
+                else if (leaves.contains(target.type.name))
+                    recursiveLeaves(target, this.limit)
+            }
+    }
+
+    fun recursiveLeaves(b: Block, limit: Int) {
+        breakBlock(b, null)
+        if (limit != 0)
+            for (neighbor in neighbors) {
+                val target = b.world.getBlockAt(b.location.add(neighbor))
+                if (leaves.contains(target.type.name))
+                    recursiveLeaves(
+                        target,
+                        limit - 1
+                    )
+            }
+    }
+
+    fun breakBlock(b: Block, holding: ItemStack?) {
 
         try {
             //ライブラリ追加するよりこっちのほうが楽
-             val version = "v1_12_R1"
+            val version = "v1_12_R1"
             //クラスを読み込む
 //            val loader = ClassLoader.getSystemClassLoader()
             val loader = b.javaClass.classLoader
@@ -161,19 +176,18 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
 
             val exp = MgetExpDrop.invoke(nmsBlock, handler, blockData, bonusLevel) as Int
             dropExp(exp, b.world, b.location)
-        }catch(e:Exception) {
+        } catch (e: Exception) {
             plugin.logger.info("failed to calculate experience. ${e.javaClass.name}:${e.message}")
-            e.printStackTrace()
         }
 
         b.breakNaturally(holding)
     }
 
-    fun dropExp(value: Int, world: World, pos: Location){
+    fun dropExp(value: Int, world: World, pos: Location) {
         var e = value
         val r = Random()
-        while(0 < e){
-            val drop = min(r.nextInt(1)+1,e)
+        while (0 < e) {
+            val drop = min(r.nextInt(1) + 1, e)
             e -= drop
             val exp = world.spawn(pos, ExperienceOrb::class.java)
             exp.experience = drop
@@ -181,7 +195,7 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
         }
     }
 
-    fun entityVelocity(entity: Entity, r: Random){
-        entity.velocity = Vector(r.nextFloat(), r.nextFloat(),r.nextFloat()).normalize().multiply(0.5)
+    fun entityVelocity(entity: Entity, r: Random) {
+        entity.velocity = Vector(r.nextFloat(), r.nextFloat(), r.nextFloat()).normalize().multiply(0.5)
     }
 }
