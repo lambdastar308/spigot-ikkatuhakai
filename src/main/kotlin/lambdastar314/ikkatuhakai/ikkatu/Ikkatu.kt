@@ -28,6 +28,7 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
     var leaves = Collections.synchronizedSet(HashSet<String>())
     var blocks = Collections.synchronizedSet(HashSet<String>())
     var tools = Collections.synchronizedSet(HashSet<String>())
+    var statusdef = true
     var limit: Int = 10
 
     companion object {
@@ -55,6 +56,7 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
         config.getStringList("blocks").stream().forEach(blocks::add)
         config.getStringList("tools").stream().forEach(tools::add)
         limit = config.getInt("limit", 5)
+        statusdef = config.getBoolean("defaultstatus", false)
     }
 
     fun command(player: Player, s: String){
@@ -79,17 +81,12 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
             recursiveBlocks(e.block, e.player.inventory.itemInMainHand, limit, true)
         if (tools.contains(e.player.inventory.itemInOffHand.type.name))
             recursiveBlocks(e.block, e.player.inventory.itemInOffHand, limit, true)
-
-        dropExp(experience, e.block.world, e.block.location)
-        experience = 0
     }
 
     @EventHandler
     fun onPlayerJoined(e: PlayerJoinEvent) {
-        status[e.player.name] = true
+        status[e.player.name] = statusdef
     }
-
-    var experience = 0
 
     /**
      * 再帰的にブロックを破壊していく
@@ -157,9 +154,7 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
             val bonusLevel = holding?.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS) ?: 0
 
             val exp = MgetExpDrop.invoke(nmsBlock, handler, blockData, bonusLevel) as Int
-            experience += exp
-            plugin.logger.info("exp:$exp")
-//            dropExp(exp, b.world, b.location)
+            dropExp(exp, b.world, b.location)
         }catch(e:Exception) {
             plugin.logger.info("failed to calculate experience. ${e.javaClass.name}:${e.message}")
             e.printStackTrace()
@@ -181,6 +176,6 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
     }
 
     fun entityVelocity(entity: Entity, r: Random){
-        entity.velocity = Vector(r.nextFloat(), r.nextFloat(),r.nextFloat()).normalize().multiply(0.2)
+        entity.velocity = Vector(r.nextFloat(), r.nextFloat(),r.nextFloat()).normalize().multiply(0.5)
     }
 }
