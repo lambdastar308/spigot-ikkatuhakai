@@ -28,17 +28,15 @@ class IkkatuCommand(val plugin: Ikkatuhakai) : CommandExecutor {
                     sender!!.sendMessage("コンソールからは使えません！")
                     return false
                 }
-                if (args.size == 2) {
-                    return false
-                }
+                val cmd = if (args.size != 2) "" else args[1]
                 when(args[0]){
-                    "mine" -> Ikkatuhakai.ikkatuhalais["mine"]!!.command(sender as Player, args[1])
-                    "dig" -> Ikkatuhakai.ikkatuhalais["dig"]!!.command(sender as Player, args[1])
-                    "cut" -> Ikkatuhakai.ikkatuhalais["cut"]!!.command(sender as Player, args[1])
+                    "mine" -> Ikkatuhakai.ikkatuhalais["mine"]!!.command(sender, cmd)
+                    "dig" -> Ikkatuhakai.ikkatuhalais["dig"]!!.command(sender, cmd)
+                    "cut" -> Ikkatuhakai.ikkatuhalais["cut"]!!.command(sender, cmd)
                     "all" ->{
-                        Ikkatuhakai.ikkatuhalais["mine"]!!.command(sender as Player, args[1])
-                        Ikkatuhakai.ikkatuhalais["dig"]!!.command(sender as Player, args[1])
-                        Ikkatuhakai.ikkatuhalais["cut"]!!.command(sender as Player, args[1])
+                        Ikkatuhakai.ikkatuhalais["mine"]!!.command(sender, cmd)
+                        Ikkatuhakai.ikkatuhalais["dig"]!!.command(sender, cmd)
+                        Ikkatuhakai.ikkatuhalais["cut"]!!.command(sender, cmd)
                     }
                 }
                 return true
