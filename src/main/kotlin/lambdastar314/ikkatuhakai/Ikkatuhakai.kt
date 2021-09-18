@@ -23,23 +23,6 @@ class Ikkatuhakai : JavaPlugin() {
         ikkatuhalais["mine"] = Ikkatu(this, "mine")
         ikkatuhalais["dig"] = Ikkatu(this, "dig")
         ikkatuhalais["cut"] = Ikkatu(this, "cut")
-
-        try {
-
-            //バージョンによってはないこともある
-            val version = "v1_12_R1"
-            val loader = ClassLoader.getSystemClassLoader()
-            val CCraftBlock = loader.loadClass("org.bukkit.craftbukkit.$version.block.CraftBlock")
-            val CCraftWorld = loader.loadClass("org.bukkit.craftbukkit.$version.CraftWorld")
-            val CBlock = loader.loadClass("net.minecraft.server.$version.Block")
-            val MgetNMSBlock: Method = CCraftBlock.getDeclaredMethod("getNMSBlock")
-            val MgetHandle: Method = CCraftWorld.getDeclaredMethod("getHandle")
-            val MgetExpDrop: Method = CCraftBlock.getDeclaredMethod("getExpDrop")
-            val MgetBlockData: Method = CCraftBlock.getDeclaredMethod("getBlockData")
-        }catch(e: Exception){
-            logger.warning("failed to calculate experience. ${e.javaClass.name}:${e.message}")
-            logger.warning("So, The experience orb won't be dropped in this server.")
-        }
     }
 
     override fun onDisable() {
