@@ -19,9 +19,9 @@ class IkkatuCommand(val plugin: Ikkatuhakai) : CommandExecutor {
         }
         when (args[0]) {
             "reload" -> {
-                Ikkatuhakai.ikkatuhalais["mine"] = Ikkatu(plugin, "mine")
-                Ikkatuhakai.ikkatuhalais["dig"] = Ikkatu(plugin, "dig")
-                Ikkatuhakai.ikkatuhalais["cut"] = Ikkatu(plugin, "cut")
+                Ikkatuhakai.ikkatuhalais["mine"]!!.load(plugin, "mine")
+                Ikkatuhakai.ikkatuhalais["dig"]!!.load(plugin, "dig")
+                Ikkatuhakai.ikkatuhalais["cut"]!!.load(plugin, "cut")
             }
             else -> {
                 if (sender !is Player) {
