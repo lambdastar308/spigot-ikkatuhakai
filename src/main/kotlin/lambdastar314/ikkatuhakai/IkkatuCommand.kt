@@ -22,6 +22,18 @@ class IkkatuCommand(val plugin: Ikkatuhakai) : CommandExecutor {
                 Ikkatuhakai.ikkatuhalais["mine"]!!.load(plugin, "mine")
                 Ikkatuhakai.ikkatuhalais["dig"]!!.load(plugin, "dig")
                 Ikkatuhakai.ikkatuhalais["cut"]!!.load(plugin, "cut")
+                return true
+            }
+            "check" ->{
+                if (sender !is Player) {
+                    sender!!.sendMessage("コンソールからは使えません！")
+                    return false
+                }
+                val mhand = sender.inventory.itemInMainHand.type.name
+                val shand = sender.inventory.itemInOffHand.type.name
+                sender.sendMessage("メイン手持ちのアイテム名: $mhand")
+                sender.sendMessage("サブ手持ちのアイテム名: $shand")
+                return true
             }
             else -> {
                 if (sender !is Player) {
