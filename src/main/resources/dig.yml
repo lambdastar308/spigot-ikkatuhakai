@@ -1,11 +1,15 @@
 leaves:
 blocks:
-  - CLAY
-  - GRAVEL
+  - minecraft:gravel
+  - minecraft:sand
+  - minecraft:dirt
+  - minecraft:soul_sand
+  - minecraft:soul_soil
 tools:
-  - IRON_SPADE
-  - STONE_SPADE
-  - WOOD_SPADE
-  - DIAMOND_SPADE
-  - GOLD_SPADE
+  - minecraft:iron_shovel
+  - minecraft:stone_shovel
+  - minecraft:wooden_shovel
+  - minecraft:diamond_shovel
+  - minecraft:golden_shovel
+  - minecraft:netherite_shovel
 limit: 10

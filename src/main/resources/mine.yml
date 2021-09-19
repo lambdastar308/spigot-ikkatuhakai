@@ -1,17 +1,12 @@
 leaves:
 blocks:
-  - GOLD_ORE
-  - IRON_ORE
-  - COAL_ORE
-  - DIAMOND_ORE
-  - LAPIS_ORE
-  - QUARTZ_ORE
-  - EMERALD_ORE
-  - GLOWING_REDSTONE_ORE
+  - minecraft:obsidian
+  - minecraft:magma
 tools:
-  - IRON_PICKAXE
-  - STONE_PICKAXE
-  - WOOD_PICKAXE
-  - DIAMOND_PICKAXE
-  - GOLD_PICKAXE
+  - minecraft:iron_pickaxe
+  - minecraft:stone_pickaxe
+  - minecraft:wooden_pickaxe
+  - minecraft:diamond_pickaxe
+  - minecraft:golden_pickaxe
+  - minecraft:netherite_pickaxe
 limit: 10
