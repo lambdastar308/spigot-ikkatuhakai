@@ -96,14 +96,16 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
 
     fun recursiveBlocks(b: Block, holding: ItemStack) {
         if (blocks.contains(b.type.name).not()) return
+        val type = b.type
+        breakBlock(b, holding)
         for (neighbor in neighbors) {
             val target = b.world.getBlockAt(b.location.add(neighbor))
-            if (target.type == b.type)
+            if (target.type == type)
                 recursiveBBlocks(
                     target,
                     holding,
                     limit - 1,
-                    b.type
+                    type
                 )
             else if (leaves.contains(target.type.name))
                 recursiveLeaves(target, this.limit)
@@ -162,13 +164,8 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
             val MgetExpDrop: Method = CBlock.getMethod("getExpDrop", CWorld, MgetBlockData.returnType, Int::class.java)
             //getNMSBlock()が隠れてるので露わにする
             MgetNMSBlock.isAccessible = true
-            //デバッグ 本当に一緒？？？？
-//            plugin.logger.info("b: ${b.javaClass.name} + hash=${b.javaClass.hashCode()}") // ブロックの型
-//            plugin.logger.info("getNMSBlock(): ${MgetNMSBlock.declaringClass.name} + hash=${MgetNMSBlock.declaringClass.hashCode()}") // getNMSBlockの元クラスの型
-//            plugin.logger.info("b instanceOf ${MgetNMSBlock.declaringClass.name} = ${MgetNMSBlock.declaringClass.isInstance(b)}") // 型が一緒か
-//            plugin.logger.info("b class == getNMSBlock Return = ${b.javaClass == MgetNMSBlock.declaringClass}") // 本当に一緒か？？？？
 
-            val nmsBlock = MgetNMSBlock.invoke(b) //ここでエラーが出る
+            val nmsBlock = MgetNMSBlock.invoke(b)
             val handler = MgetHandle.invoke(CCraftWorld.cast(b.world))
             val blockData = MgetBlockData.invoke(nmsBlock)
 
