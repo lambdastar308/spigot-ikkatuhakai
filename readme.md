@@ -3,17 +3,9 @@ SpigotでもMineAll, DigAll, CutAllの様に一括破壊ができるmodです。
 
 ## 導入方法  
 以下のコマンドを実行し、ビルドしてください。  
-### 1.12
 ```
     git clone https://github.com/spigot-ikkatuhakai #リポジトリをクローン
     cd spigot-ikkatuhakai
-    gradle jar #ビルド
-```
-### 1.17対応版
-```
-    git clone https://github.com/spigot-ikkatuhakai #リポジトリをクローン
-    cd spigot-ikkatuhakai
-    git checkout 117support
     gradle jar #ビルド
 ```
 実行後、build/libs下にjarファイルがあるのでこれをプラグインフォルダにコピーしてください。  
@@ -37,7 +29,4 @@ tools: 一括破壊で利用する道具
 limit: 一括破壊での連鎖上限  
 defaultstatus: ログイン時のディフォルトの設定。標準でOFF
 
-blocks, tools, leavesに指定できるブロック,アイテム一覧は  
-1.12版の場合、[ここ](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html "名称一覧") 
-から参照できます。  
-1.17版ではsetblock,giveコマンドで使用するIDが利用できます。
+blocks, tools, leavesに指定できるブロック,アイテム名はsetblock,giveで指定するブロックIDです。
