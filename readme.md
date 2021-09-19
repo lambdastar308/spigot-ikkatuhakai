@@ -29,4 +29,4 @@ tools: 一括破壊で利用する道具
 limit: 一括破壊での連鎖上限  
 defaultstatus: ログイン時のディフォルトの設定。標準でOFF
 
-blocks, tools, leavesに指定できるブロック,アイテム一覧は[ここ](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html "名称一覧") から参照できます。
+blocks, tools, leavesに指定できるブロック,アイテム名はsetblock,giveで指定するブロックIDです。
