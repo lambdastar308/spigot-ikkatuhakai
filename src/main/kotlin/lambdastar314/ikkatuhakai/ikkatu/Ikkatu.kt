@@ -59,7 +59,7 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
         config.getStringList("tools").stream().forEach(tools::add)
         limit = config.getInt("limit", 5)
         statusdef = config.getBoolean("defaultstatus", false)
-        version = config.getString("version", "v1_12_R1")
+        version = config.getString("version", "v1_12_R1")!!
     }
 
     fun command(player: Player, s: String) {
@@ -79,13 +79,10 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
 
     @EventHandler
     fun onBlockBroken(e: BlockBreakEvent) {
-        if (e.player == null) return
-        if (e.block == null) return
-        if (e.player.name == null) return
         if (status[e.player.name] != true) return
-        if (tools.contains(e.player.inventory.itemInMainHand.type.name))
+        if (tools.contains(e.player.inventory.itemInMainHand.type.key.toString()))
             recursiveBlocks(e.block, e.player.inventory.itemInMainHand)
-        if (tools.contains(e.player.inventory.itemInOffHand.type.name))
+        if (tools.contains(e.player.inventory.itemInOffHand.type.key.toString()))
             recursiveBlocks(e.block, e.player.inventory.itemInOffHand)
     }
 
@@ -95,7 +92,7 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
     }
 
     fun recursiveBlocks(b: Block, holding: ItemStack) {
-        if (blocks.contains(b.type.name).not()) return
+        if (blocks.contains(b.type.key.toString()).not()) return
         val type = b.type
         breakBlock(b, holding)
         for (neighbor in neighbors) {
@@ -107,7 +104,7 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
                     limit - 1,
                     type
                 )
-            else if (leaves.contains(target.type.name))
+            else if (leaves.contains(target.type.key.toString()))
                 recursiveLeaves(target, this.limit)
 
         }
@@ -126,7 +123,7 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
                         limit - 1,
                         parentType
                     )
-                else if (leaves.contains(target.type.name))
+                else if (leaves.contains(target.type.key.toString()))
                     recursiveLeaves(target, this.limit)
             }
     }
@@ -136,7 +133,7 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
         if (limit != 0)
             for (neighbor in neighbors) {
                 val target = b.world.getBlockAt(b.location.add(neighbor))
-                if (leaves.contains(target.type.name))
+                if (leaves.contains(target.type.key.toString()))
                     recursiveLeaves(
                         target,
                         limit - 1

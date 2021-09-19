@@ -18,7 +18,7 @@ class Ikkatuhakai : JavaPlugin() {
     override fun onEnable() {
         // Plugin startup logic
         logger.info("Plugin waked")
-        getCommand("ikkatu").executor = IkkatuCommand(this)
+        getCommand("ikkatu")!!.setExecutor(IkkatuCommand(this))
 
         ikkatuhalais["mine"] = Ikkatu(this, "mine")
         ikkatuhalais["dig"] = Ikkatu(this, "dig")
