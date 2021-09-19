@@ -3,6 +3,7 @@ version: '${version}'
 main: lambdastar314.ikkatuhakai.Ikkatuhakai
 prefix: IKKATU_HAKAI
 authors: [ lambdastar314 ]
+api-version: 1.17
 
 commands:
   ikkatu:
