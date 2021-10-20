@@ -34,11 +34,14 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
     var version = "v1_12_R1"
 
     companion object {
-        val neighbors = arrayOf(
-            Vector(0, 0, -1), Vector(0, 0, 1),
-            Vector(0, -1, 0), Vector(0, 1, 0),
-            Vector(-1, 0, 0), Vector(1, 0, 0)
-        )
+        val neighbors = HashSet<Vector>()
+        init {
+            for(x in -1..1)
+                for(y in -1..1)
+                    for(z in -1..1)
+                        if(!(x == 0 && y == 0 && z == 0))
+                        neighbors.add(Vector(x, y, z))
+        }
     }
 
     init {
@@ -151,16 +154,18 @@ open class Ikkatu(var plugin: JavaPlugin, var name: String) : Listener {
             val loader = b.javaClass.classLoader
             val CCraftBlock = loader.loadClass("org.bukkit.craftbukkit.$version.block.CraftBlock")
             val CCraftWorld = loader.loadClass("org.bukkit.craftbukkit.$version.CraftWorld")
-            val CWorld = loader.loadClass("net.minecraft.server.$version.World")
-            val CBlock = loader.loadClass("net.minecraft.server.$version.Block")
+            var CWorld = loader.loadClass("net.minecraft.server.World")
+            var CBlock = loader.loadClass("net.minecraft.server.Block")
 //            Arrays.stream(CCraftBlock.methods).map{it.name}.filter{it[0]=='g'}.forEach(plugin.logger::info)
             //メゾットを読み込む
             val MgetNMSBlock: Method = CCraftBlock.getDeclaredMethod("getNMSBlock")
+            //getNMSBlock()が隠れてるので露わにする
+            MgetNMSBlock.isAccessible = true
+            CBlock = MgetNMSBlock.returnType
+            CWorld = loader.loadClass(CBlock.`package`.name+".World")
             val MgetHandle: Method = CCraftWorld.getMethod("getHandle")
             val MgetBlockData: Method = CBlock.getMethod("getBlockData")
             val MgetExpDrop: Method = CBlock.getMethod("getExpDrop", CWorld, MgetBlockData.returnType, Int::class.java)
-            //getNMSBlock()が隠れてるので露わにする
-            MgetNMSBlock.isAccessible = true
 
             val nmsBlock = MgetNMSBlock.invoke(b)
             val handler = MgetHandle.invoke(CCraftWorld.cast(b.world))
